@@ -6,6 +6,11 @@ import { imageUrl } from "@/lib/imageUrl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddToBasketButton from "@/components/AddToBasketButton";
+import {
+  createCheckoutSession,
+  Metadata,
+} from "@/actions/createChesckoutSession";
+
 const BasketPage = () => {
   const groupedItems = useBasketStore((state) => state.groupedItems());
   const { user } = useUser();
@@ -27,6 +32,18 @@ const BasketPage = () => {
     if (!isSignedIn) return;
     setIsLoading(true);
     try {
+      const metadata: Metadata = {
+        orderNumber: crypto.randomUUID(),
+        customerName: user?.fullName ?? "unknown",
+        customerEmail: user?.emailAddresses[0].emailAddress ?? "unknown",
+        clerkUserId: user!.id,
+      };
+
+      const checkoutUrl = await createCheckoutSession(groupedItems, metadata);
+
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+      }
     } catch (error) {
       console.error(error);
     } finally {
