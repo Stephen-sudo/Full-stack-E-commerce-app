@@ -3,6 +3,7 @@
 import { BasketItem } from "@/app/(store)/store";
 import { imageUrl } from "@/lib/imageUrl";
 import stripe from "@/lib/stripe";
+
 export type Metadata = {
   orderNumber: string;
   customerName: string;
@@ -35,6 +36,19 @@ export async function createCheckoutSession(
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
     }
+
+    const baseUrl =
+      process.env.NODE_ENV === "production"
+        ? `https://${process.env.VERCEL_URL}`
+        : `${process.env.NEXT_PUBLIC_BASE_URL}`;
+
+    const successUrl = `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}&orderNumber=${metadata.orderNumber}`;
+
+    const cancelUrl = `${baseUrl}/basket`;
+
+    console.log("SUCCESS URL <<<<", successUrl);
+    console.log("CANCEL URL <<<<", cancelUrl);
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_creation: customerId ? undefined : "always",
@@ -42,8 +56,9 @@ export async function createCheckoutSession(
       metadata,
       mode: "payment",
       allow_promotion_codes: true,
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL || `https://${process.env.VERCEL_URL}`}/success?session_id={CHECKOUT_SESSION_ID}&order_number=${metadata.orderNumber}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || `https://${process.env.VERCEL_URL}`}/basket`,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      payment_method_types: ["card", "paypal"],
       line_items: items.map((item) => ({
         price_data: {
           currency: "gbp",

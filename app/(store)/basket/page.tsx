@@ -1,5 +1,6 @@
 "use client";
 import { SignInButton, useAuth, useUser } from "@clerk/nextjs";
+import { useEffect } from "react";
 import useBasketStore from "../store";
 import Image from "next/image";
 import { imageUrl } from "@/lib/imageUrl";
@@ -9,7 +10,8 @@ import AddToBasketButton from "@/components/AddToBasketButton";
 import {
   createCheckoutSession,
   Metadata,
-} from "@/actions/createChesckoutSession";
+} from "@/actions/createCheckoutSession";
+import Loader from "@/components/Loader";
 
 const BasketPage = () => {
   const groupedItems = useBasketStore((state) => state.groupedItems());
@@ -19,6 +21,13 @@ const BasketPage = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  if (!isClient) {
+    return <Loader />;
+  }
 
   if (groupedItems.length === 0) {
     return (
