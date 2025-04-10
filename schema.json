@@ -576,14 +576,14 @@
         },
         "optional": true
       },
-      "amount": {
+      "amountDiscount": {
         "type": "objectAttribute",
         "value": {
           "type": "number"
         },
         "optional": true
       },
-      "Status": {
+      "status": {
         "type": "objectAttribute",
         "value": {
           "type": "union",
@@ -594,11 +594,15 @@
             },
             {
               "type": "string",
-              "value": "processing"
+              "value": "paid"
             },
             {
               "type": "string",
-              "value": "completed"
+              "value": "shipped"
+            },
+            {
+              "type": "string",
+              "value": "delivered"
             },
             {
               "type": "string",
